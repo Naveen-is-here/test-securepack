@@ -42,7 +42,7 @@ jobs:
     - name: Build and push Docker image using Buildpacks
       run: |
         image_name_with_tag="${{ secrets.DOCKER_USERNAME }}/${{ github.event.inputs.image_name }}:latest"
-        cd ${{ github.workspace }}/{{ github.event.inputs.directory }}
+        cd "${{ github.workspace }}/${{ github.event.inputs.directory }}"
         pack build $image_name_with_tag --builder initializbuildpacks/securepacks
         docker push $image_name_with_tag
 
