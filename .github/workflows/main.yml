@@ -19,13 +19,24 @@ on:
           - nodejs/react-yarn
           - nodejs/vue-npm
           - nodejs/yarn
+      repo_url:
+        description: 'GitHub repository URL (optional, leave empty to use current repo)'
+        required: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
+    - name: Checkout repository if no repo_url provided
+      if: ${{ github.event.inputs.repo_url == '' }}
       uses: actions/checkout@v2
+
+    - name: Clone specified repository if repo_url provided
+      if: ${{ github.event.inputs.repo_url != '' }}
+      run: |
+        git clone ${{ github.event.inputs.repo_url }} repo
+        cd repo
+        git checkout ${{ github.event.inputs.directory }}
 
     - name: Install Pack CLI
       run: |
@@ -42,8 +53,12 @@ jobs:
     - name: Build and push Docker image using Buildpacks
       run: |
         image_name_with_tag="${{ secrets.DOCKER_USERNAME }}/${{ github.event.inputs.image_name }}:latest"
-        cd "${{ github.workspace }}/${{ github.event.inputs.directory }}"
-        pack build $image_name_with_tag --builder initializbuildpacks/securepacks
+        if [ "${{ github.event.inputs.repo_url }}" == "" ]; then
+          cd "${{ github.workspace }}/${{ github.event.inputs.directory }}"
+        else
+          cd repo/${{ github.event.inputs.directory }}
+        fi
+        pack build $image_name_with_tag --builder gcr.io/buildpacks/builder:v1
         docker push $image_name_with_tag
 
     - name: Display Docker Image URI
