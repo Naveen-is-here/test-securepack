@@ -48,4 +48,4 @@ jobs:
 
     - name: Display Docker Image URI
       run: |
-        echo "Docker Image URI: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.inputs.image_name }}:latest"; exit 0
+        echo "::notice title=Docker Image URI::${{ secrets.DOCKER_USERNAME }}/${{ github.event.inputs.image_name }}:latest"
