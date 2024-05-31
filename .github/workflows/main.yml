@@ -6,22 +6,28 @@ on:
       image_name:
         description: 'Desired name for the Docker image'
         required: true
+      directory:
+        description: 'Select the directory to build'
+        required: true
+        type: choice
+        options:
+          - go/mod
+          - go/no-imports
+          - nodejs/angular-npm
+          - nodejs/no-package-manager
+          - nodejs/npm
+          - nodejs/react-yarn
+          - nodejs/vue-npm
+          - nodejs/yarn
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        directory: ["go/mod", "go/no-imports", "nodejs/angular-npm", "nodejs/no-package-manager", "nodejs/npm", "nodejs/react-yarn", "nodejs/vue-npm", "nodejs/yarn"]
     steps:
-    - name: Set directory input
-      id: set_directory
-      run: echo "DIRECTORY=${{ matrix.directory }}" >> $GITHUB_ENV
-
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        path: ${{ env.DIRECTORY }}
+        path: ${{ github.event.inputs.directory }}
 
     - name: Install Pack CLI
       run: |
@@ -38,10 +44,9 @@ jobs:
 
     - name: Build and push Docker image using Buildpacks
       run: |
-        pack build ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.image_name }} --builder gcr.io/buildpacks/builder:v1 --path ${{ env.DIRECTORY }}
+        pack build ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.image_name }} --builder gcr.io/buildpacks/builder:v1 --path ${{ github.event.inputs.directory }}
         docker push ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.image_name }}:latest
 
     - name: Display Docker Image URI
       run: |
-          echo "Docker Image URI: ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.image_name }}:latest"; exit 0
-
+        echo "Docker Image URI: ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.image_name }}:latest"; exit 0
