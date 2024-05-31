@@ -8,7 +8,7 @@ on:
         required: true
       directory:
         description: 'Select the directory to build'
-        required: true
+        required: false
         type: choice
         options:
           - go/mod
@@ -21,7 +21,7 @@ on:
           - nodejs/yarn
       repo_url:
         description: 'GitHub repository URL (optional, leave empty to use current repo)'
-        required: false
+        required: true
 
 jobs:
   build:
