@@ -26,9 +26,14 @@ jobs:
       run: |
         sudo add-apt-repository ppa:cncf-buildpacks/pack-cli -y
         sudo apt-get update
+<<<<<<< HEAD:.github/workflows
         sudo apt-get install pack-cli -y
 
     - name: Log in to GitHub Packages Docker Registry
+=======
+        sudo apt-get install pack-cli
+    - name: Log in to Docker Hub
+>>>>>>> 80af5ef327c8931805a7c933d1d397228aac470e:.github/workflows/main.yml
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
