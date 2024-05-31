@@ -48,14 +48,19 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+    - name: Determine working directory
+      id: determine-dir
+      run: |
+        if [ "${{ github.event.inputs.repo_url }}" == "" ]; then
+          echo "dir=${{ github.workspace }}/${{ github.event.inputs.directory }}" >> $GITHUB_ENV
+        else
+          echo "dir=repo" >> $GITHUB_ENV
+        fi
+
     - name: Build and push Docker image using Buildpacks
       run: |
         image_name_with_tag="${{ secrets.DOCKER_USERNAME }}/${{ github.event.inputs.image_name }}:latest"
-        if [ "${{ github.event.inputs.repo_url }}" == "" ]; then
-          cd "${{ github.workspace }}/${{ github.event.inputs.directory }}"
-        else
-          cd repo/${{ github.event.inputs.directory }}
-        fi
+        cd ${{ env.dir }}
         pack build $image_name_with_tag --builder initializbuildpacks/securepacks
         docker push $image_name_with_tag
 
