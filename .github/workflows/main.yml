@@ -44,7 +44,7 @@ jobs:
     - name: Build and push Docker image using Buildpacks
       run: |
         image_name_with_tag="${{ secrets.DOCKER_USERNAME }}/${{ github.event.inputs.image_name }}:latest"
-        pack build $image_name_with_tag --builder gcr.io/buildpacks/builder:v1 --path ${{ github.event.inputs.directory }}
+        pack build $image_name_with_tag --builder initializbuildpacks/securepacks --path ${{ github.event.inputs.directory }}
         docker push $image_name_with_tag
 
     - name: Display Docker Image URI
