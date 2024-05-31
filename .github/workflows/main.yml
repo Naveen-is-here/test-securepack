@@ -52,9 +52,9 @@ jobs:
       id: determine-dir
       run: |
         if [ "${{ github.event.inputs.repo_url }}" == "" ]; then
-          echo "dir=${{ github.workspace }}/${{ github.event.inputs.directory }}" >> $GITHUB_ENV
+          echo "dir=${{ github.workspace }}/repo" >> $GITHUB_ENV
         else
-          echo "dir=repo/${{ github.event.inputs.directory }}" >> $GITHUB_ENV
+          echo "dir=repo" >> $GITHUB_ENV
         fi
 
     - name: Build and push Docker image using Buildpacks
