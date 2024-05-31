@@ -35,8 +35,6 @@ jobs:
       if: ${{ github.event.inputs.repo_url != '' }}
       run: |
         git clone ${{ github.event.inputs.repo_url }} repo
-        cd repo
-        git checkout ${{ github.event.inputs.directory }}
 
     - name: Install Pack CLI
       run: |
@@ -58,7 +56,7 @@ jobs:
         else
           cd repo/${{ github.event.inputs.directory }}
         fi
-        pack build $image_name_with_tag --builder gcr.io/buildpacks/builder:v1
+        pack build $image_name_with_tag --builder initializbuildpacks/securepacks
         docker push $image_name_with_tag
 
     - name: Display Docker Image URI
