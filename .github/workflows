@@ -1,16 +1,22 @@
-name: Build, Deploy, and Test with Buildpacks
+name: Build and Deploy with Buildpacks
 
 on:
-  push:
-    branches:
-      - main  # Trigger the workflow on push to the main branch
-  pull_request:
-    branches:
-      - main  # Trigger the workflow on pull requests to the main branch
+  workflow_dispatch:  # Manual triggering of the workflow
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ["go/mod", "go/no-imports", "nodejs/angular-npm", "nodejs/no-package-manager", "nodejs/npm", "nodejs/react-yarn", "nodejs/vue-npm", "nodejs/yarn"]
+
+    inputs:
+      directory:
+        description: 'Directory to build the image from'
+        required: true
+      image_name:
+        description: 'Desired name for the Docker image'
+        required: true
 
     steps:
     - name: Checkout repository
@@ -18,23 +24,21 @@ jobs:
 
     - name: Install Pack CLI
       run: |
-        sudo add-apt-repository ppa:cncf-buildpacks/pack-cli
+        sudo add-apt-repository ppa:cncf-buildpacks/pack-cli -y
         sudo apt-get update
-        sudo apt-get install pack-cli
+        sudo apt-get install pack-cli -y
 
-    - name: Log in to Docker Hub
+    - name: Log in to GitHub Packages Docker Registry
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and push Docker image using Buildpacks
       run: |
-        IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/my-image:latest
-        pack build $IMAGE_NAME --builder naveen871/go-securepack --path .
-        docker push $IMAGE_NAME
-        echo "image=$IMAGE_NAME" >> $GITHUB_ENV
-        echo "Docker image pushed: $IMAGE_NAME"  # Display Docker image name
+        pack build ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }} --builder gcr.io/buildpacks/builder:v1 --path ./${{ matrix.directory }}
+        docker push ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}:latest
 
-    - name: Display Docker image name
-      run: echo "Docker image pushed: ${{ env.image }}"
+    - name: Display Docker Image URI
+      run: echo "Docker Image URI: ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}:latest"
