@@ -44,7 +44,7 @@ jobs:
       run: |
         echo "dir=repo" >> $GITHUB_ENV
         image_name_with_tag="${{ secrets.DOCKER_USERNAME }}/${{ github.event.inputs.image_name }}:latest"
-        cd ${{ env.dir }}
+        cd ${{ github.event.inputs.directory }}
         pack build $image_name_with_tag --builder initializbuildpacks/securepacks
         docker push $image_name_with_tag
 
