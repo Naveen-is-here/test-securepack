@@ -17,9 +17,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Clone specified repository if repo_url provided
+    - name: Clone specified repository
       run: |
-          git clone ${{ github.event.inputs.repo_url }} repo          
+        git clone ${{ github.event.inputs.repo_url }} repo
+
     - name: Set up environment variable for directory
       id: set-dir
       run: |
@@ -28,12 +29,6 @@ jobs:
         else
           echo "##[set-output name=dir;]repo/${{ github.event.inputs.desired_directory }}"
         fi
-
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        repository: ${{ github.event.inputs.repo_url }}
-        path: repo
 
     - name: Change directory if specified
       run: |
