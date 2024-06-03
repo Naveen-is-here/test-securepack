@@ -17,6 +17,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Clone specified repository if repo_url provided
+      run: |
+          git clone ${{ github.event.inputs.repo_url }} repo          
     - name: Set up environment variable for directory
       id: set-dir
       run: |
