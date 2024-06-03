@@ -19,9 +19,6 @@ on:
           - nodejs/react-yarn
           - nodejs/vue-npm
           - nodejs/yarn
-      repo_url:
-        description: 'GitHub repository URL (optional, leave empty to use current repo)'
-        required: true
 
 jobs:
   build:
@@ -30,11 +27,6 @@ jobs:
     - name: Checkout repository if no repo_url provided
       if: ${{ github.event.inputs.repo_url == '' }}
       uses: actions/checkout@v2
-
-    - name: Clone specified repository if repo_url provided
-      if: ${{ github.event.inputs.repo_url != '' }}
-      run: |
-        git clone ${{ github.event.inputs.repo_url }} repo
 
     - name: Install Pack CLI
       run: |
@@ -48,17 +40,9 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Determine working directory
-      id: determine-dir
-      run: |
-        if [ "${{ github.event.inputs.repo_url }}" == "" ]; then
-          echo "dir=${{ github.workspace }}/repo" >> $GITHUB_ENV
-        else
-          echo "dir=repo" >> $GITHUB_ENV
-        fi
-
     - name: Build and push Docker image using Buildpacks
       run: |
+        echo "dir=repo" >> $GITHUB_ENV
         image_name_with_tag="${{ secrets.DOCKER_USERNAME }}/${{ github.event.inputs.image_name }}:latest"
         cd ${{ env.dir }}
         pack build $image_name_with_tag --builder initializbuildpacks/securepacks
